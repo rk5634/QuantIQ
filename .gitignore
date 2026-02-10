@@ -1,0 +1,182 @@
+# =========================
+# Python bytecode & caches
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# =========================
+# Distribution / packaging
+# =========================
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# =========================
+# Virtual environments
+# =========================
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+.python-version
+
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+*.env
+
+# =========================
+# Logs & runtime files
+# =========================
+*.log
+*.out
+*.err
+*.pid
+*.pid.lock
+
+# =========================
+# Unit test / coverage
+# =========================
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# =========================
+# Type checkers & linters
+# =========================
+.mypy_cache/
+.pyre/
+.pytype/
+.ruff_cache/
+.dmypy.json
+dmypy.json
+
+# =========================
+# Jupyter Notebook
+# =========================
+.ipynb_checkpoints
+
+# =========================
+# IDE & editor files
+# =========================
+.vscode/
+.idea/
+*.iml
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+.DS_Store?
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+.Spotlight-V100/
+.Trashes/
+
+# =========================
+# Build systems / packaging
+# =========================
+pip-wheel-metadata/
+*.whl
+
+# =========================
+# Dependency managers
+# =========================
+# Poetry
+poetry.lock
+
+# Pipenv
+Pipfile.lock
+
+# PDM
+.pdm.toml
+.pdm-python
+.pdm-build/
+
+# UV package manager
+.uv/
+
+# =========================
+# Docker & containers
+# =========================
+*.tar
+docker-compose.override.yml
+
+# =========================
+# FastAPI / Django / Flask
+# =========================
+instance/
+.webassets-cache
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# =========================
+# ML / Data Science artifacts
+# =========================
+mlruns/
+wandb/
+artifacts/
+checkpoints/
+*.h5
+*.pt
+*.pth
+*.onnx
+*.ckpt
+*.joblib
+*.pkl
+
+# =========================
+# Temporary files
+# =========================
+*.tmp
+*.temp
+tmp/
+temp/
+
+# =========================
+# Misc
+# =========================
+*.bak
+*.swp
+*.swo
+*~
+
+
+# Project data directory
+stock_prediction/data/
