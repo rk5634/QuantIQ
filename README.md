@@ -33,7 +33,7 @@ The system does not rely on a single model. It uses a **Voting Ensemble** of 5 d
 
 ## 📊 Performance (Daily Timeframe)
 
-After rigorous optimization (Phase 16), the system achieved the following on HDFC Bank data:
+After rigorous optimization (Phase 16), the system achieved the following on HDFC Bank data in 706 days:
 
 | Model | Total Return | Win Rate | Verdict |
 | :--- | :--- | :--- | :--- |
