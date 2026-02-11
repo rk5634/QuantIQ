@@ -20,10 +20,17 @@ def main():
         default=str(settings.RAW_DATA_DIR / "NSE_HDFCBANK15.csv") # Default to known file
     )
     
+    parser.add_argument(
+        "--timeframe", 
+        type=str, 
+        help="Pandas resampling frequency (e.g., '15T', '1H', '1D')",
+        default=settings.TIMEFRAME
+    )
+    
     args = parser.parse_args()
     
     try:
-        run_pipeline(args.data_path)
+        run_pipeline(args.data_path, timeframe=args.timeframe)
     except Exception as e:
         print(f"Pipeline failed: {e}")
         sys.exit(1)

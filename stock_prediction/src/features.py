@@ -83,8 +83,99 @@ def add_technical_indicators(df: pd.DataFrame) -> pd.DataFrame:
     
     # Price Change
     
-    # Price Change
-    df['price_change_15m'] = df['close'].pct_change(1) * 100
+    # Price Change (Past Return)
+    # Adaptive to Data Frequency is less relevant if we resample beforehand.
+    # We simply take the 1-period percent change of the (resampled) close price.
+    # If resampling to 1H, this is the 1H return.
+    
+    df['past_return'] = df['close'].pct_change(1) * 100
+    
+    # --- Indian Trader Indicator: SuperTrend ---
+    # Manually implementing SuperTrend (7, 3) as per "Desi Trader"
+    # 1. Calc ATR (Period 7)
+    high = df['high']
+    low = df['low']
+    close = df['close']
+    
+    # ATR for SuperTrend
+    st_period = settings.SUPERTREND_PERIOD
+    st_multiplier = settings.SUPERTREND_MULTIPLIER
+    
+    # Calculate TR manually or use ta
+    tr1 = high - low
+    tr2 = abs(high - close.shift(1))
+    tr3 = abs(low - close.shift(1))
+    tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
+    atr_st = tr.rolling(st_period).mean() # Simple Moving Average of TR typically used in SuperTrend, or RMA?
+    # Standard SuperTrend often uses RMA/Wilder's Smoothing or just simple SMA. Let's use standard ATR from TA lib if possible or SMA manual.
+    # Let's use TA lib ATR with period 7
+    atr_st_ind = ta.volatility.AverageTrueRange(high=high, low=low, close=close, window=st_period)
+    atr_val = atr_st_ind.average_true_range()
+    
+    # 2. Basic Upper/Lower Bands
+    # Upper Basic = (High + Low) / 2 + (Multiplier * ATR)
+    # Lower Basic = (High + Low) / 2 - (Multiplier * ATR)
+    hl2 = (high + low) / 2
+    basic_upper = hl2 + (st_multiplier * atr_val)
+    basic_lower = hl2 - (st_multiplier * atr_val)
+    
+    # 3. Final Upper/Lower Bands
+    # Initialize columns
+    final_upper = pd.Series(0.0, index=df.index)
+    final_lower = pd.Series(0.0, index=df.index)
+    supertrend = pd.Series(0.0, index=df.index) # 1 = Uptrend, -1 = Downtrend (or value)
+    
+    # Iterative calculation required for SuperTrend logic based on previous values
+    # We can try Numba or just loop (it's O(N), fast enough for 699 rows).
+    # Logic:
+    # If Close[i-1] <= Final Upper[i-1]:
+    #   Final Upper[i] = min(Basic Upper[i], Final Upper[i-1])
+    # Else:
+    #   Final Upper[i] = Basic Upper[i]
+    
+    # Using arrays for speed
+    close_arr = close.values
+    bu_arr = basic_upper.values
+    bl_arr = basic_lower.values
+    fu_arr = np.zeros(len(df))
+    fl_arr = np.zeros(len(df))
+    st_arr = np.zeros(len(df)) # The SuperTrend Line Value
+    trend_arr = np.zeros(len(df)) # 1 for Green, -1 for Red
+    
+    for i in range(1, len(df)):
+        # Final Upper
+        if (bu_arr[i] < fu_arr[i-1]) or (close_arr[i-1] > fu_arr[i-1]):
+            fu_arr[i] = bu_arr[i]
+        else:
+            fu_arr[i] = fu_arr[i-1]
+            
+        # Final Lower
+        if (bl_arr[i] > fl_arr[i-1]) or (close_arr[i-1] < fl_arr[i-1]):
+            fl_arr[i] = bl_arr[i]
+        else:
+            fl_arr[i] = fl_arr[i-1]
+            
+        # Trend
+        if (st_arr[i-1] == fu_arr[i-1]) and (close_arr[i] <= fu_arr[i]):
+            st_arr[i] = fu_arr[i]
+            trend_arr[i] = -1
+        elif (st_arr[i-1] == fu_arr[i-1]) and (close_arr[i] > fu_arr[i]):
+            st_arr[i] = fl_arr[i]
+            trend_arr[i] = 1
+        elif (st_arr[i-1] == fl_arr[i-1]) and (close_arr[i] >= fl_arr[i]):
+            st_arr[i] = fl_arr[i]
+            trend_arr[i] = 1
+        elif (st_arr[i-1] == fl_arr[i-1]) and (close_arr[i] < fl_arr[i]):
+            st_arr[i] = fu_arr[i]
+            trend_arr[i] = -1
+        else:
+            # Default/Init
+            st_arr[i] = st_arr[i-1]
+            trend_arr[i] = trend_arr[i-1]
+            
+    df['supertrend'] = st_arr
+    df['supertrend_signal'] = trend_arr # 1 = Buy (Green), -1 = Sell (Red)
+
     
     logger.info("Technical indicators added.")
     return df

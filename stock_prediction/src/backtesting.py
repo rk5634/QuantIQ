@@ -246,10 +246,11 @@ class Backtester:
             max_drawdown = 0.0
             duration_str = "0 days"
 
+        # Use 'Rs.' instead of symbol to avoid UnicodeEncodeError on some Windows terminals
         logger.info(f"====== {model_name} BACKTEST RESULTS ======")
         logger.info(f"Duration:        {duration_str}")
-        logger.info(f"Initial Capital: ₹{self.initial_capital:,.2f}")
-        logger.info(f"Final Capital:   ₹{final_capital:,.2f}")
+        logger.info(f"Initial Capital: Rs. {self.initial_capital:,.2f}")
+        logger.info(f"Final Capital:   Rs. {final_capital:,.2f}")
         logger.info(f"Total Return:    {return_pct:.2f}%")
         logger.info(f"Total Trades:    {total_trades}")
         logger.info(f"Win Rate:        {win_rate:.2%}")
@@ -261,7 +262,9 @@ class Backtester:
             "Win Rate": f"{win_rate:.2%}",
             "Trades": total_trades,
             "Max Drawdown": f"{max_drawdown:.2f}%",
-            "Duration": duration_str
+            "Duration": duration_str,
+            "Start Capital": f"{self.initial_capital:,.2f}",
+            "Final Capital": f"{final_capital:,.2f}"
         })
         return metrics
         

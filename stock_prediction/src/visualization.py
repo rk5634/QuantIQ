@@ -235,17 +235,21 @@ def plot_ema(df):
     plt.xticks(rotation=45)
     save_plot(plt.gcf(), "ema_12_26.png")
 
-def plot_price_change(df):
-    if 'price_change_15m' not in df.columns:
-        return
-    plt.figure(figsize=(14, 6))
-    plt.plot(df['time'], df['price_change_15m'], label="15-Minute Price Change (%)", color="green")
-    plt.title("15-Minute Price Change Over Time")
-    plt.xlabel("Date")
-    plt.ylabel("Price Change (%)")
-    plt.legend()
-    plt.xticks(rotation=45)
-    save_plot(plt.gcf(), "price_change.png")
+def plot_price_change_distribution(df): # Distribution of Price Changes
+    if 'past_return' in df.columns:
+        plt.figure(figsize=(10, 6))
+        sns.histplot(df['past_return'], bins=50, kde=True)
+        plt.title('Distribution of Price Changes (Past Return)')
+        plt.xlabel('Price Change (%)')
+        plt.ylabel('Frequency') # Added ylabel for clarity
+        save_plot(plt.gcf(), 'price_change_distribution.png') # Changed to plt.gcf()
+    # The following lines seem to be remnants from the old plot_price_change function
+    # and are not relevant for a distribution plot.
+    # plt.xlabel("Date")
+    # plt.ylabel("Price Change (%)")
+    # plt.legend()
+    # plt.xticks(rotation=45)
+    # save_plot(plt.gcf(), "price_change.png")
 
 def plot_candlestick_mav(df, n=200):
     """Candlestick with 50 & 200 MA"""

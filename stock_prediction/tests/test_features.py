@@ -42,7 +42,12 @@ def test_generate_signals(sample_data):
     
     df = features.generate_signals(sample_data)
     
-    assert 'buy_signal' in df.columns
+    assert 'buy_signal' in df.columns    # Check new features
+    # 'price_change_15m' renamed to 'past_return'
+    assert 'past_return' in df.columns
+    assert 'adx' in df.columns
+    assert 'atr' in df.columns
+    assert 'obv' in df.columns
     assert 'sell_signal' in df.columns
     assert 'stop_loss' in df.columns
     assert 'take_profit' in df.columns

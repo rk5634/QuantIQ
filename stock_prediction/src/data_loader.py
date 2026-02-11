@@ -26,8 +26,23 @@ def load_data(filepath: str | Path) -> pd.DataFrame:
 
     try:
         logger.info(f"Loading data from {filepath}")
-        # Parse 'time' column as dates
-        df = pd.read_csv(filepath, parse_dates=['time'])
+        # Parse 'time' or 'date' column
+        df = pd.read_csv(filepath)
+        
+        # Standardize column names
+        df.columns = [c.lower() for c in df.columns]
+        
+        # Rename 'date' to 'time' if present
+        if 'date' in df.columns:
+            df.rename(columns={'date': 'time'}, inplace=True)
+            
+        # Ensure 'time' is datetime
+        if 'time' in df.columns:
+            df['time'] = pd.to_datetime(df['time'])
+        else:
+            logger.error("No 'time' or 'date' column found in CSV.")
+            raise ValueError("CSV must contain 'time' or 'date' column.")
+            
         logger.info(f"Successfully loaded {len(df)} rows.")
         return df
     except Exception as e:
