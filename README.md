@@ -1,4 +1,4 @@
-# AI-Driven Stock Market Analysis and Prediction 📈
+# QuantIQ: AI-Driven Stock Market Analysis 📈
 
 This project is a sophisticated **Algorithmic Trading System** that leverages **Machine Learning (ML)** and **Deep Learning** techniques to predict stock price movements and execute optimal trading strategies.
 
