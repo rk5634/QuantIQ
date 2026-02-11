@@ -51,7 +51,7 @@ After rigorous optimization (Phase 16), the system achieved the following on HDF
 
 The system follows a modular, production-grade pipeline:
 
-```mermaid
+
 graph TD
     A[Raw Data (CSV)] --> B(Data Loader);
     B --> C{Preprocessing};
@@ -60,7 +60,7 @@ graph TD
     E --> F[Evaluation];
     F --> G[Backtesting];
     G --> H[Final Report & Plots];
-```
+
 
 ### Step-by-Step Workflow:
 
