@@ -53,35 +53,27 @@ The system follows a modular, production-grade pipeline:
 
 ```mermaid
 flowchart LR
-    %% =========================
-    %% Data Pipeline
-    %% =========================
-    subgraph Data Pipeline
-        A[Raw Market Data<br/>(CSV / API)]
+
+    subgraph Data_Pipeline
+        A[Raw Market Data CSV or API]
         B[Data Loader]
-        C[Preprocessing<br/>Cleaning & Resampling]
+        C[Preprocessing: Cleaning & Resampling]
         D[Feature Engineering]
     end
 
-    %% =========================
-    %% Modeling Pipeline
-    %% =========================
-    subgraph Modeling Pipeline
+    subgraph Modeling_Pipeline
         E[Model Training]
         F[Model Evaluation]
     end
 
-    %% =========================
-    %% Strategy Pipeline
-    %% =========================
-    subgraph Strategy & Analysis
+    subgraph Strategy_and_Analysis
         G[Backtesting Engine]
-        H[Final Reports & Visualizations]
+        H[Final Reports and Visualizations]
     end
 
-    %% Flow
     A --> B --> C --> D --> E --> F --> G --> H
 ```
+
 
 
 
