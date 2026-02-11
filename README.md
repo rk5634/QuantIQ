@@ -51,15 +51,38 @@ After rigorous optimization (Phase 16), the system achieved the following on HDF
 
 The system follows a modular, production-grade pipeline:
 
+```mermaid
+flowchart LR
+    %% =========================
+    %% Data Pipeline
+    %% =========================
+    subgraph Data Pipeline
+        A[Raw Market Data<br/>(CSV / API)]
+        B[Data Loader]
+        C[Preprocessing<br/>Cleaning & Resampling]
+        D[Feature Engineering]
+    end
 
-graph TD
-    A[Raw Data (CSV)] --> B(Data Loader);
-    B --> C{Preprocessing};
-    C -->|Clean & Resample| D[Feature Engineering];
-    D --> E{Models & Training};
-    E --> F[Evaluation];
-    F --> G[Backtesting];
-    G --> H[Final Report & Plots];
+    %% =========================
+    %% Modeling Pipeline
+    %% =========================
+    subgraph Modeling Pipeline
+        E[Model Training]
+        F[Model Evaluation]
+    end
+
+    %% =========================
+    %% Strategy Pipeline
+    %% =========================
+    subgraph Strategy & Analysis
+        G[Backtesting Engine]
+        H[Final Reports & Visualizations]
+    end
+
+    %% Flow
+    A --> B --> C --> D --> E --> F --> G --> H
+```
+
 
 
 ### Step-by-Step Workflow:
