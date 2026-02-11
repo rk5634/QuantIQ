@@ -1,4 +1,4 @@
-
+[]
 import pandas as pd
 import numpy as np
 import ta
@@ -6,6 +6,23 @@ from stock_prediction.config import settings
 from stock_prediction.src.utils import setup_logger
 
 logger = setup_logger("features")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def add_technical_indicators(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -26,6 +43,11 @@ def add_technical_indicators(df: pd.DataFrame) -> pd.DataFrame:
     for window in settings.MA_WINDOWS:
         df[f'ma_{window}'] = df['close'].rolling(window=window).mean()
         
+    # Volume Moving Average (for Sniper Strategy)
+    df['vol_ma_20'] = df['volume'].rolling(window=20).mean()
+        
+    # EMAs
+        
     # EMAs
     for span in settings.EMA_SPANS:
         df[f'ema_{span}'] = df['close'].ewm(span=span, adjust=False).mean()
@@ -43,6 +65,23 @@ def add_technical_indicators(df: pd.DataFrame) -> pd.DataFrame:
     df['bollinger_mavg'] = bollinger.bollinger_mavg()
     df['bollinger_hband'] = bollinger.bollinger_hband()
     df['bollinger_lband'] = bollinger.bollinger_lband()
+    
+    # --- Senior Trader Indicators ---
+    # ADX (Trend Strength)
+    adx_ind = ta.trend.ADXIndicator(high=df['high'], low=df['low'], close=df['close'], window=settings.ADX_PERIOD)
+    df['adx'] = adx_ind.adx()
+    
+    # ATR (Volatility)
+    atr_ind = ta.volatility.AverageTrueRange(high=df['high'], low=df['low'], close=df['close'], window=settings.ATR_PERIOD)
+    df['atr'] = atr_ind.average_true_range()
+    
+    # OBV (Volume Flow)
+    obv_ind = ta.volume.OnBalanceVolumeIndicator(close=df['close'], volume=df['volume'])
+    df['obv'] = obv_ind.on_balance_volume()
+    # OBV Slope (Rate of change of OBV to normalize it)
+    df['obv_slope'] = df['obv'].pct_change(5) # 5-period slope
+    
+    # Price Change
     
     # Price Change
     df['price_change_15m'] = df['close'].pct_change(1) * 100

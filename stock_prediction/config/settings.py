@@ -20,7 +20,8 @@ PLOTS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Feature Engineering Settings
 RSI_WINDOW = 14
-RSI_OVERSOLD = 45  # Relaxed from 30 to allow more buy signals
+RSI_WINDOW = 14
+RSI_OVERSOLD = 40  # Stricter: Only buy deeper dips to increase Win Rate
 RSI_OVERBOUGHT = 55 # Relaxed from 70 to allow more sell signals
 
 MA_WINDOWS = [50, 200]
@@ -31,9 +32,22 @@ BOLLINGER_DEV = 2
 
 LAG_FEATURES = 3
 
-# Trading Strategy Settings
+# Trading Strategy Parameters
 STOP_LOSS_PCT = 0.02
-TAKE_PROFIT_PCT = 0.05
+TAKE_PROFIT_PCT = 0.04 # Changed from 0.05
+
+# Senior Trader Mode Parameters
+ADX_PERIOD = 14
+ADX_THRESHOLD = 25    # Trend Strength Floor
+ATR_PERIOD = 14
+ATR_MULTIPLIER = 2.0  # For Dynamic Stop Loss
+
+# Sniper Strategy Parameters (Phase 10 & 11)
+# Sniper Strategy Parameters (Phase 10 & 11)
+# Sniper Strategy Parameters (Phase 10 & 11)
+SNIPER_CONFIDENCE_THRESHOLD = 0.60 # Dip Buyer Mode: 60% Conf + RSI < 40
+VOLUME_CONFIRMATION_THRESHOLD = 1.5 # Volume > 1.5x MA_20
+META_LABELING_ENABLED = False # Placeholder for future
 
 # Future Returns Labeling Settings
 FUTURE_PERIOD = 5 # Number of candles to look ahead

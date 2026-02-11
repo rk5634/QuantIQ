@@ -42,7 +42,8 @@ def run_pipeline(data_path: str):
     feature_cols = [
         'open', 'high', 'low', 'close', 'rsi', 
         'ma_50', 'ma_200', 'ema_12', 'ema_26', 'macd_diff',
-        'bollinger_mavg', 'bollinger_hband', 'bollinger_lband', 'price_change_15m'
+        'bollinger_mavg', 'bollinger_hband', 'bollinger_lband', 'price_change_15m',
+        'adx', 'atr', 'obv', 'obv_slope' # Senior Trader Features
     ]
     # Add lag columns dynamically
     lag_cols = [col for col in df.columns if col.startswith('lag_')]
@@ -96,7 +97,8 @@ def run_pipeline(data_path: str):
     for name, model_info in results.items():
         # model_info is dict with 'predictions' key from evaluation.py
         predictions = model_info['predictions']
-        metrics = backtester.run(df_test, predictions, model_name=name)
+        probabilities = model_info.get('probabilities')
+        metrics = backtester.run(df_test, predictions, probabilities=probabilities, model_name=name)
         if metrics:
             backtest_metrics.append(metrics)
         

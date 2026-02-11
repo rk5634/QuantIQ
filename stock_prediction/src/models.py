@@ -1,7 +1,7 @@
 
 from typing import Dict, Any
 import joblib
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 from xgboost import XGBClassifier
 from sklearn.svm import SVC
 from stock_prediction.config import settings
@@ -58,7 +58,22 @@ def train_models(X_train, y_train) -> Dict[str, Any]:
     )
     svm_model.fit(X_train, y_train)
     models['SVM'] = svm_model
+    models['SVM'] = svm_model
     logger.info("SVM trained.")
+    
+    # --- Senior Trader Ensemble ---
+    logger.info("Training Ensemble Voting Classifier...")
+    ensemble = VotingClassifier(
+        estimators=[
+            ('rf', rf_model),
+            ('xgb', xgb_model),
+            ('svm', svm_model)
+        ],
+        voting='soft' # Average probabilities
+    )
+    ensemble.fit(X_train, y_train)
+    models['Ensemble'] = ensemble
+    logger.info("Ensemble Voting Classifier trained.")
     
     return models
 

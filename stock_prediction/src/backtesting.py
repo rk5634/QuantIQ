@@ -32,14 +32,15 @@ class Backtester:
         self.entry_date = None
         self.entry_cost = 0.0
         
-    def run(self, df: pd.DataFrame, predictions: np.ndarray, model_name: str = "Model"):
+    def run(self, df: pd.DataFrame, predictions: np.ndarray, probabilities: np.ndarray = None, model_name: str = "Model"):
         """
         Run backtest simulation.
         
         Args:
-            df: DataFrame containing price data (must have 'close', 'high', 'low', 'time').
-            predictions: Array of model predictions (1 for Buy, 0 for Hold/Sell).
-            model_name: Name of the model being tested.
+            df: DataFrame containing price data.
+            predictions: Array of model predictions.
+            probabilities: Array of model probabilities (optional, for Sniper Mode).
+            model_name: Name of the model.
         """
         self.reset()
         logger.info(f"Starting backtest for {model_name}...")
@@ -56,6 +57,15 @@ class Backtester:
         highs = df['high'].values
         lows = df['low'].values
         
+        # Senior Trader Features (Handle missing if old config used)
+        has_senior_features = 'adx' in df.columns and 'atr' in df.columns
+        if has_senior_features:
+            adx = df['adx'].values
+            atr = df['atr'].values
+        else:
+             logger.warning("ADX/ATR not found. Running in Basic Mode.")
+             
+        # Loop through data
         # Loop through data
         for i in range(len(df)):
             date = dates[i]
@@ -107,6 +117,40 @@ class Backtester:
             
             # --- Check Entry Conditions (if no position) ---
             if self.position == 0 and pred == settings.ACTION_MAPPING['BUY']:
+            
+                # --- PHASE 10: SNIPER STRATEGY LOGIC ---
+                is_sniper_valid = True
+                
+                # 1. Confidence Check
+                if probabilities is not None:
+                    # predictions array might match probabilities length
+                    if probabilities[i] < settings.SNIPER_CONFIDENCE_THRESHOLD:
+                        is_sniper_valid = False
+                        
+                # 2. Volume Confirmation
+                if 'vol_ma_20' in df.columns:
+                     # Access volume via values array for speed? 
+                     # Should cache values outside loop conceptually, but direct access OK for now
+                     # Need to ensure i matches df index? Yes, straight loop.
+                     current_vol = df['volume'].values[i]
+                     avg_vol = df['vol_ma_20'].values[i]
+                     
+                     # Check if Valid Volume
+                     if not np.isnan(avg_vol) and current_vol < (avg_vol * settings.VOLUME_CONFIRMATION_THRESHOLD):
+                          is_sniper_valid = False
+                          
+                if not is_sniper_valid:
+                     continue
+                # ---------------------------------------
+                
+                # Senior Trader Logic: Regime Filter
+            
+                # Senior Trader Logic: Regime Filter
+                if has_senior_features:
+                    # If Trend is too weak (Choppy Market), DO NOT BUY
+                    if adx[i] < settings.ADX_THRESHOLD:
+                         continue 
+                
                 # Buy Logic
                 # Allocate 95% of available capital
                 allocation = self.capital * 0.95
@@ -123,10 +167,19 @@ class Backtester:
                     self.entry_date = date
                     
                     # Set Risk Management
-                    # Assuming we enter at 'price' (Close of this bar)
-                    # Typically implies entering next Open, but for simplicity/estimation we use Close
-                    self.stop_loss = price * (1 - settings.STOP_LOSS_PCT)
-                    self.take_profit = price * (1 + settings.TAKE_PROFIT_PCT)
+                    # Senior Trader Logic: Dynamic ATR Stop Loss
+                    if has_senior_features:
+                         self.stop_loss = price - (atr[i] * settings.ATR_MULTIPLIER)
+                         # Dynamic TP: Risk:Reward 1:2 usually, or use fixed
+                         # Let's keep fixed TP multiplier or use ATR (e.g., 2*ATR risk -> 4*ATR profit?)
+                         # User asked for "senior trader" -> typically 1.5x or 2x ATR for TP too, or fixed pct
+                         # Let's stick to settings pct for TP for now to isolate SL improvement, or mix.
+                         # Better: TP = Price + (atr[i] * settings.ATR_MULTIPLIER * 2) ?
+                         # Let's use the explicit settings.TAKE_PROFIT_PCT for consistency unless settings changed.
+                         self.take_profit = price * (1 + settings.TAKE_PROFIT_PCT)
+                    else:
+                        self.stop_loss = price * (1 - settings.STOP_LOSS_PCT)
+                        self.take_profit = price * (1 + settings.TAKE_PROFIT_PCT)
             
             # --- Record Equity ---
             # Equity = Cash + Current Market Value of Holdings

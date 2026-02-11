@@ -34,12 +34,20 @@ def evaluate_models(models, X_test, y_test):
         # Plot Confusion Matrix
         visualization.plot_confusion_matrix(cm, name)
         
+        # Get Probabilities for Sniper Mode
+        if hasattr(model, "predict_proba"):
+            probs = model.predict_proba(X_test)[:, 1] # Probability of class 1 (Buy)
+        else:
+            logger.warning(f"{name} does not support predict_proba. Using hard predictions.")
+            probs = predictions # Fallback
+            
         results[name] = {
             "accuracy": acc,
             "report_str": report_str,
             "report_dict": report_dict,
             "confusion_matrix": cm,
-            "predictions": predictions
+            "predictions": predictions,
+            "probabilities": probs
         }
     
     # Comparative Plots
